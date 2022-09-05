@@ -5,13 +5,13 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node-ts tracker.ts"
+    "start": "ts-node tracker.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bt-presence": "^2.0.0",
-    "node-ts": "^5.1.2"
+    "ts-node": "^10.9.1"
   }
 }
