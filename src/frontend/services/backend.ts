@@ -20,7 +20,7 @@ export const useBackend = defineStore('backend', {
             this.socket.on('devices', (data) => this.devicesStatus = data)
 
             this.socket.on('device-added', ({device}) => this.onDeviceAdded(device))
-            this.socket.on('device-updated', ({device}) => this.onDeviceUpdated(device))
+            this.socket.on('device-updated', ({device, status}) => this.onDeviceUpdated(device, status))
             this.socket.on('device-removed', ({device}) => this.onDeviceRemoved(device))
 
             this.socket.on('device-connected', ({device}) => this.onDeviceUpdated(device, 1))
@@ -47,12 +47,13 @@ export const useBackend = defineStore('backend', {
             })
         },
 
-        onDeviceUpdated(device: Device, status?: PresenceStatus) {
+        onDeviceUpdated(device: Device, newStatus?: PresenceStatus) {
             const indexOfDevice = this.devicesStatus.findIndex(deviceStatus => deviceStatus.device.macAddress === device.macAddress)
             if (indexOfDevice !== -1) {
+                const oldStatus = this.devicesStatus[indexOfDevice].status
                 this.devicesStatus[indexOfDevice] = {
                     device,
-                    status: status !== null ? status : this.devicesStatus[indexOfDevice].status,
+                    status: (newStatus !== null ? newStatus : oldStatus),
                 }
             }
         },
