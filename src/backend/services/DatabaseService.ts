@@ -1,6 +1,5 @@
 import {createClient, RedisClientType} from "redis";
-import {ConfigService} from "./ConfigService";
-import {RedisSocketOptions} from "@redis/client/dist/lib/client/socket";
+import {ConfigService} from "./ConfigService.js";
 
 interface DatabaseOptions {
     url?: string;

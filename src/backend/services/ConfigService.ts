@@ -2,12 +2,17 @@ import {readFileSync} from "fs";
 
 export interface Config {
     backendPort?: number;
+
     debug?: boolean;
+
+    trackingEnabled?: boolean;
 
     tackingOptions?: {
         pingCount?: number,
         pingTimeout?: number,
     },
+
+    storeDevices?: boolean;
 
     databaseOptions?: {
         url?: string;
@@ -22,6 +27,9 @@ export class ConfigService {
     static defaultConfig: Config = {
         backendPort: 3000,
         debug: false,
+
+        trackingEnabled: true,
+        storeDevices: true,
 
         tackingOptions: {
             pingCount: 5,

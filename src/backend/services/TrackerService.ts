@@ -1,10 +1,10 @@
 import {btPresence as BTPresenceTracker} from "bt-presence";
-import {ConfigService} from "./ConfigService";
-import {Device} from "../contracts/Device";
-import {DeviceStatus} from "../contracts/DeviceStatus";
-import {PresenceStatus} from "../contracts/PresenceStatus";
+import {ConfigService} from "./ConfigService.js";
+import {Device} from "../../common/contracts/Device.js";
+import {DeviceStatus} from "../../common/contracts/DeviceStatus.js";
+import {PresenceStatus} from "../../common/contracts/PresenceStatus.js";
 import {EventEmitter} from "events"
-import {EventSubscriber} from "../contracts/EventSubscriber";
+import {EventSubscriber} from "../../common/contracts/EventSubscriber.js";
 
 interface TrackerOptions {
     pingCount: number;
@@ -20,7 +20,6 @@ export enum TrackerEvent {
     StartedTracking = 'started-tracking',
     StoppedTracking = 'stopped-tracking'
 }
-
 
 export class TrackerService implements EventEmitter {
 

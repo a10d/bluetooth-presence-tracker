@@ -1,41 +1,53 @@
-import express from 'express';
-import {Server as SocketIoServer} from 'socket.io'
 import {createServer} from "http";
-import {ConfigService} from "./services/ConfigService";
-import {TrackerEvent, TrackerService} from "./services/TrackerService";
-import {DatabaseService} from "./services/DatabaseService";
-import {Device} from "./contracts/Device";
+import {Server} from "socket.io";
+import {ConfigService} from "./services/ConfigService.js";
+import {TrackerEvent, TrackerService} from "./services/TrackerService.js";
+import {DatabaseService} from "./services/DatabaseService.js";
 
 const configService = ConfigService.loadConfig('config.json');
 
 const tracker = new TrackerService(configService)
 const database = new DatabaseService(configService)
 
-database.connect()
-    .then(() => {
-        database.loadDevices().then(devices => tracker.setDevices(devices))
-    })
 
-try {
-    tracker.startTracking()
-} catch (e) {
-    console.error('Could not start tracking...')
+console.log('Hello')
+
+/**
+ * Persist the devices on disk
+ */
+if (configService.config.storeDevices) {
+    database.connect()
+        .then(() => database.loadDevices().then(devices => tracker.setDevices(devices)))
+
+    const SaveDevicesToDatabase = () => {
+        if (configService.config.debug) console.log('Saving devices to database...')
+        database.saveDevices(tracker.devices.map(ds => ds.device)).then(() => console.log('[Changes saved]'))
+    }
+
+    tracker.on(TrackerEvent.DeviceAdded, SaveDevicesToDatabase)
+    tracker.on(TrackerEvent.DeviceRemoved, SaveDevicesToDatabase)
+    tracker.on(TrackerEvent.DeviceUpdated, SaveDevicesToDatabase)
 }
 
+/**
+ * Enable tracking
+ */
+if (configService.config.trackingEnabled) {
+    try {
+        tracker.startTracking()
+    } catch (e) {
+        console.error('Could not start tracking...')
+    }
+}
 
-const app: express.Application = express();
-
-const server = createServer(app)
-
-const io = new SocketIoServer(server, {
+const httpServer = createServer();
+const io = new Server(httpServer, {
     cors: {
         origin: '*'
     }
 });
 
-
 io.on('connection', (socket) => {
-
     console.log('Connection over socket.io (default)')
 })
 
@@ -48,26 +60,18 @@ io.on('add-device', (data) => {
     console.log('add-device', data)
 })
 
-const SaveDevicesToDatabase = () => {
-    if (configService.config.debug) console.log('Saving devices to database...')
-    database.saveDevices(tracker.devices.map(ds => ds.device)).then(() => console.log('[Changes saved]'))
-}
-
-tracker.on(TrackerEvent.DeviceAdded, SaveDevicesToDatabase)
-tracker.on(TrackerEvent.DeviceRemoved, SaveDevicesToDatabase)
-tracker.on(TrackerEvent.DeviceUpdated, SaveDevicesToDatabase)
-
 tracker.on(TrackerEvent.StartedTracking, () => io.send({event: TrackerEvent.StartedTracking,}))
 tracker.on(TrackerEvent.StoppedTracking, () => io.send({event: TrackerEvent.StoppedTracking,}))
 tracker.on(TrackerEvent.DeviceConnected, ({device}) => io.send({event: TrackerEvent.DeviceConnected, device,}))
 tracker.on(TrackerEvent.DeviceDisconnected, ({device}) => io.send({event: TrackerEvent.DeviceDisconnected, device,}))
 
-// Handling '/' Request
-app.get('/', (_req, _res) => {
+/**
+ // Handling '/' Request
+ app.get('/', (_req, _res) => {
     _res.send("TypeScript With Expresss");
 });
 
-app.post('/api/devices', (_req, _res) => {
+ app.post('/api/devices', (_req, _res) => {
     if (_req.body.hasOwnProperty('macAddress') && _req.body.hasOwnProperty('name')) {
         const device: Device = {
             macAddress: _req.body.macAddress,
@@ -83,7 +87,7 @@ app.post('/api/devices', (_req, _res) => {
 
 })
 
-app.delete('/api/devices', (_req, _res) => {
+ app.delete('/api/devices', (_req, _res) => {
     if (_req.body.hasOwnProperty('macAddress')) {
         const device: Device = {
             macAddress: _req.body.macAddress,
@@ -94,7 +98,11 @@ app.delete('/api/devices', (_req, _res) => {
     return _res.status(401)
 })
 
-// Server setup
-server.listen(configService.config.backendPort, () => {
+ // Server setup
+
+
+ **/
+
+httpServer.listen(configService.config.backendPort, () => {
     console.log(`Listening on http://localhost:${configService.config.backendPort}/`);
 });
