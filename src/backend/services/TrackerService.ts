@@ -171,12 +171,14 @@ export class TrackerService implements EventEmitter {
 
     private setDeviceStatus(device: Device, status: PresenceStatus) {
         if (this.isTrackingDevice(device)) {
+            device = this.devices.find(ds => device.macAddress === ds.device.macAddress).device
             this.devices[this.devices.findIndex(ds => ds.device.macAddress === device.macAddress)].status = status;
 
             this.emit(
                 status === PresenceStatus.Present ? TrackerEvent.DeviceConnected : TrackerEvent.DeviceDisconnected,
                 {device, status}
             )
+
             this.emit(TrackerEvent.DeviceUpdated, {device, status})
         }
     }
@@ -197,6 +199,7 @@ export class TrackerService implements EventEmitter {
     addDevice(device: Device) {
 
         if (!this.isTrackingDevice(device)) {
+
             this.devices.push({
                 device,
                 status: PresenceStatus.Absent
@@ -204,7 +207,7 @@ export class TrackerService implements EventEmitter {
 
             this.tracker.addDevices([device.macAddress])
 
-            this.emit(TrackerEvent.DeviceAdded, {device})
+            this.emit(TrackerEvent.DeviceAdded, {device, status: PresenceStatus.Absent})
         } else {
             this.devices[this.devices.findIndex(ds => ds.device.macAddress === device.macAddress)].device.name = device.name
             this.emit(TrackerEvent.DeviceUpdated, {device})
