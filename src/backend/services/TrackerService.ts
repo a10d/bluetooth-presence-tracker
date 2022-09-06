@@ -174,10 +174,13 @@ export class TrackerService implements EventEmitter {
             device = this.devices.find(ds => device.macAddress === ds.device.macAddress).device
             this.devices[this.devices.findIndex(ds => ds.device.macAddress === device.macAddress)].status = status;
 
-            this.emit(
-                status === PresenceStatus.Present ? TrackerEvent.DeviceConnected : TrackerEvent.DeviceDisconnected,
-                {device, status}
-            )
+            if (status === PresenceStatus.Present) {
+                this.emit(TrackerEvent.DeviceConnected, {device, status})
+            }
+
+            if (status === PresenceStatus.Absent) {
+                this.emit(TrackerEvent.DeviceDisconnected, {device, status})
+            }
 
             this.emit(TrackerEvent.DeviceUpdated, {device, status})
         }

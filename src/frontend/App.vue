@@ -15,12 +15,12 @@
 
     <div class="my-4" v-if="devicesStatus.length > 0">
       <div v-for="{device, status} in devicesStatus" @click="editDevice(device)"
-           class="border rounded flex items-center p-4 gap-4 group cursor-pointer transform transition-all hover:scale-105 active:scale-95 select-none"
+           class="border rounded flex items-center p-4 gap-4 group cursor-pointer transform transition-all hover:scale-105 active:scale-95 select-none mt-5"
            :class="{'shadow-lg border-gray-300 text-gray-800': status === 1, 'shadow-sm border-gray-200 text-gray-500': status !== 1}">
 
         <StatusLight
             :status="status === 1"
-            :size="status === 1 ? '3' : '5'"
+            :size="status !== 1 ? '3' : '5'"
         />
 
         <div>

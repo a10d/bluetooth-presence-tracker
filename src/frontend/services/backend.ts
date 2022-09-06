@@ -3,8 +3,6 @@ import {connect as useSocket} from "socket.io-client";
 import {Device} from "../../common/contracts/Device";
 import {PresenceStatus} from "../../common/contracts/PresenceStatus";
 import {DeviceStatus} from "../../common/contracts/DeviceStatus";
-import {TrackerEvent} from "../../backend/services/TrackerService";
-
 
 export const useBackend = defineStore('backend', {
     state: () => ({
