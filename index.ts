@@ -5,7 +5,6 @@ import {createServer} from "http";
 import {ConfigService} from "./services/ConfigService";
 import {TrackerEvent, TrackerService} from "./services/TrackerService";
 import {DatabaseService} from "./services/DatabaseService";
-import {PresenceStatus} from './contracts/PresenceStatus'
 import {Device} from "./contracts/Device";
 
 const configService = ConfigService.loadConfig('config.json');
@@ -19,7 +18,7 @@ database.connect()
     })
 
 try {
-    // tracker.startTracking()
+    tracker.startTracking()
 } catch (e) {
     console.error('Could not start tracking...')
 }
