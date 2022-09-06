@@ -30,13 +30,24 @@ app.use(express.json())
 
 const server = createServer(app)
 
-const io = new SocketIoServer(server);
+const io = new SocketIoServer(server, {
+    cors: {
+        origin: '*'
+    }
+});
 
-io.on('connection', (socket) => {
-    console.log('Connection over socket.io')
+io.of('api/live').on('connection', (socket) => {
+    console.log('Connection over socket.io of api/live', socket)
 })
 
-const SaveDevicesToDatabase = () => database.saveDevices(tracker.devices.map(ds => ds.device))
+io.on('connection', (socket) => {
+    console.log('Connection over socket.io (default)', socket)
+})
+
+const SaveDevicesToDatabase = () => {
+    if (configService.config.debug) console.log('Saving devices to database...')
+    database.saveDevices(tracker.devices.map(ds => ds.device)).then(() => console.log('[Changes saved]'))
+}
 
 tracker.on(TrackerEvent.DeviceAdded, SaveDevicesToDatabase)
 tracker.on(TrackerEvent.DeviceRemoved, SaveDevicesToDatabase)
