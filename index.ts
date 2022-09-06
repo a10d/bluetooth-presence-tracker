@@ -36,12 +36,19 @@ const io = new SocketIoServer(server, {
     }
 });
 
-io.of('api/live').on('connection', (socket) => {
-    console.log('Connection over socket.io of api/live', socket)
-})
 
 io.on('connection', (socket) => {
-    console.log('Connection over socket.io (default)', socket)
+
+    console.log('Connection over socket.io (default)')
+})
+
+
+io.on('remove-device', (data) => {
+    console.log('remove-device', data)
+})
+
+io.on('add-device', (data) => {
+    console.log('add-device', data)
 })
 
 const SaveDevicesToDatabase = () => {
@@ -62,13 +69,6 @@ tracker.on(TrackerEvent.DeviceDisconnected, ({device}) => io.send({event: Tracke
 app.get('/', (_req, _res) => {
     _res.send("TypeScript With Expresss");
 });
-
-
-app.get('/api/devices/present', (_req, _res) => {
-    return tracker.devices
-        .filter(ds => PresenceStatus.Present === ds.status)
-        .map(ds => ds.device.name ?? 'Unknown Device')
-})
 
 app.post('/api/devices', (_req, _res) => {
     if (_req.body.hasOwnProperty('macAddress') && _req.body.hasOwnProperty('name')) {
