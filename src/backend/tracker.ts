@@ -18,7 +18,7 @@ if (configService.config.storeDevices) {
 
     const SaveDevicesToDatabase = () => {
         if (configService.config.debug) console.log('Saving devices to database...')
-        database.saveDevices(tracker.devices.map(ds => ds.device)).then(() => console.log('[Changes saved]'))
+        database.saveDevices(tracker.devices.map(ds => ds.device))
     }
 
     tracker.on(TrackerEvent.DeviceAdded, SaveDevicesToDatabase)
@@ -26,9 +26,6 @@ if (configService.config.storeDevices) {
     tracker.on(TrackerEvent.DeviceUpdated, SaveDevicesToDatabase)
 }
 
-/**
- * Enable tracking
- */
 if (configService.config.trackingEnabled) {
     try {
         tracker.startTracking()
@@ -45,60 +42,18 @@ const io = new Server(httpServer, {
 });
 
 io.on('connection', (socket) => {
-    console.log('Connection over socket.io (default)')
+    socket.emit('devices', tracker.devices)
+    socket.on('remove-device', (device) => tracker.removeDevice(device))
+    socket.on('add-device', (device) => tracker.addDevice(device))
 })
 
-
-io.on('remove-device', (data) => {
-    console.log('remove-device', data)
-})
-
-io.on('add-device', (data) => {
-    console.log('add-device', data)
-})
-
-tracker.on(TrackerEvent.StartedTracking, () => io.send({event: TrackerEvent.StartedTracking,}))
-tracker.on(TrackerEvent.StoppedTracking, () => io.send({event: TrackerEvent.StoppedTracking,}))
-tracker.on(TrackerEvent.DeviceConnected, ({device}) => io.send({event: TrackerEvent.DeviceConnected, device,}))
-tracker.on(TrackerEvent.DeviceDisconnected, ({device}) => io.send({event: TrackerEvent.DeviceDisconnected, device,}))
-
-/**
- // Handling '/' Request
- app.get('/', (_req, _res) => {
-    _res.send("TypeScript With Expresss");
-});
-
- app.post('/api/devices', (_req, _res) => {
-    if (_req.body.hasOwnProperty('macAddress') && _req.body.hasOwnProperty('name')) {
-        const device: Device = {
-            macAddress: _req.body.macAddress,
-            name: _req.body.name,
-        }
-        tracker.addDevice(device)
-        return _res.status(201)
-    }
-
-    return _res.status(400).json({
-        error: 'Validation failed'
-    })
-
-})
-
- app.delete('/api/devices', (_req, _res) => {
-    if (_req.body.hasOwnProperty('macAddress')) {
-        const device: Device = {
-            macAddress: _req.body.macAddress,
-        }
-        tracker.removeDevice(device)
-        return _res.status(200)
-    }
-    return _res.status(401)
-})
-
- // Server setup
-
-
- **/
+tracker.on(TrackerEvent.StartedTracking, (e) => io.local.emit(TrackerEvent.StartedTracking, e))
+tracker.on(TrackerEvent.StoppedTracking, (e) => io.local.emit(TrackerEvent.StoppedTracking, e))
+tracker.on(TrackerEvent.DeviceConnected, (e) => io.local.emit(TrackerEvent.DeviceConnected, e))
+tracker.on(TrackerEvent.DeviceDisconnected, (e) => io.local.emit(TrackerEvent.DeviceDisconnected, e))
+tracker.on(TrackerEvent.DeviceAdded, (e) => io.local.emit(TrackerEvent.DeviceAdded, e))
+tracker.on(TrackerEvent.DeviceRemoved, (e) => io.local.emit(TrackerEvent.DeviceRemoved, e))
+tracker.on(TrackerEvent.DeviceUpdated, (e) => io.local.emit(TrackerEvent.DeviceUpdated, e))
 
 httpServer.listen(configService.config.backendPort, () => {
     console.log(`Listening on http://localhost:${configService.config.backendPort}/`);

@@ -45,20 +45,15 @@ export class ConfigService {
 
     static loadConfig(filename: string): ConfigService {
         try {
-            console.log('Reading config...')
             const configFile = readFileSync(filename);
 
-            console.log('Reading config... [DONE]')
-
             const loadedConfig = JSON.parse(configFile.toString('utf-8'))
-            console.log('Reading config... [DONE][PARSED]')
             return new ConfigService({
                 ...ConfigService.defaultConfig,
                 ...loadedConfig,
             })
         } catch (e) {
-            console.warn('Could not read config file, defaulting to standard config...', e)
-
+            console.warn('Could not read config file, defaulting to standard config...')
             return new ConfigService(ConfigService.defaultConfig);
         }
     }

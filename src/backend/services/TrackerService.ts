@@ -18,7 +18,7 @@ export enum TrackerEvent {
     DeviceAdded = 'device-added',
     DeviceRemoved = 'device-removed',
     StartedTracking = 'started-tracking',
-    StoppedTracking = 'stopped-tracking'
+    StoppedTracking = 'stopped-tracking',
 }
 
 export class TrackerService implements EventEmitter {
@@ -204,7 +204,7 @@ export class TrackerService implements EventEmitter {
 
             this.tracker.addDevices([device.macAddress])
 
-            this.emit(TrackerEvent.DeviceAdded, device)
+            this.emit(TrackerEvent.DeviceAdded, {device})
         }
 
         return this;
@@ -222,6 +222,6 @@ export class TrackerService implements EventEmitter {
 
         this.tracker.removeDevices([device.macAddress])
 
-        this.emit(TrackerEvent.DeviceRemoved, device)
+        this.emit(TrackerEvent.DeviceRemoved, {device})
     }
 }
