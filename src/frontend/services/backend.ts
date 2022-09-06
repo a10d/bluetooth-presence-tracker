@@ -14,7 +14,7 @@ export const useBackend = defineStore('backend', {
     }),
     actions: {
         connect() {
-            this.socket = useSocket('http://localhost:3000/')
+            this.socket = useSocket()
 
             this.socket.on('connect', () => this.onConnected())
             this.socket.on('disconnect', () => this.onDisconnected())
