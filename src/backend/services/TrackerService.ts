@@ -176,6 +176,9 @@ export class TrackerService implements EventEmitter {
     }
 
     private setDeviceStatus(device: Device, status: PresenceStatus) {
+
+        device.macAddress = device.macAddress.toLowerCase()
+
         if (this.isTrackingDevice(device)) {
             device = this.devices.find(ds => device.macAddress === ds.device.macAddress).device
             this.devices[this.devices.findIndex(ds => ds.device.macAddress === device.macAddress)].status = status;
@@ -198,14 +201,19 @@ export class TrackerService implements EventEmitter {
 
     setDevices(devices: Device[]) {
         this.devices = devices.map(device => ({
-            device,
+            device: {
+                macAddress: device.macAddress.toLowerCase(),
+                name: device.name,
+            },
             status: PresenceStatus.Absent
         }))
 
-        this.tracker.setDevices(devices.map(device => device.macAddress))
+        this.tracker.setDevices(devices.map(device => device.macAddress.toLowerCase()))
     }
 
     addDevice(device: Device) {
+
+        device.macAddress = device.macAddress.toLowerCase()
 
         if (!this.isTrackingDevice(device)) {
 
@@ -231,6 +239,8 @@ export class TrackerService implements EventEmitter {
     }
 
     removeDevice(device: Device) {
+        device.macAddress = device.macAddress.toLowerCase()
+
         if (!this.isTrackingDevice(device)) {
             return;
         }
