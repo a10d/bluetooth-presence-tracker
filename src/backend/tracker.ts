@@ -4,13 +4,10 @@ import {ConfigService} from "./services/ConfigService.js";
 import {TrackerEvent, TrackerService} from "./services/TrackerService.js";
 import {DatabaseService} from "./services/DatabaseService.js";
 
-const configService = ConfigService.loadConfig('config.json');
+const configService = ConfigService.loadConfig('../../config.json');
 
 const tracker = new TrackerService(configService)
 const database = new DatabaseService(configService)
-
-
-console.log('Hello')
 
 /**
  * Persist the devices on disk
