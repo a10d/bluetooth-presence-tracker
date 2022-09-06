@@ -26,8 +26,8 @@ export class TrackerService implements EventEmitter {
     devices: DeviceStatus[];
 
     static defaultOptions: TrackerOptions = {
-        pingCount: 5,
-        pingTimeout: 10,
+        pingCount: 3,
+        pingTimeout: 5,
     }
 
     private options: TrackerOptions;
