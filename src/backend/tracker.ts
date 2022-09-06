@@ -26,6 +26,8 @@ if (configService.config.storeDevices) {
     tracker.on(TrackerEvent.DeviceUpdated, SaveDevicesToDatabase)
 }
 
+console.log(configService.config)
+
 /**
  * Enable tracking
  */
