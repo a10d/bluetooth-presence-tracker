@@ -49,8 +49,12 @@ export const useBackend = defineStore('backend', {
 
         onDeviceUpdated(device: Device, status?: PresenceStatus) {
             const indexOfDevice = this.devicesStatus.findIndex(deviceStatus => deviceStatus.device.macAddress === device.macAddress)
-            if (indexOfDevice !== -1) this.devicesStatus[indexOfDevice].device.name = device.name
-            if (indexOfDevice !== -1 && status !== null) this.devicesStatus[indexOfDevice].status = status
+            if (indexOfDevice !== -1) {
+                this.devicesStatus[indexOfDevice] = {
+                    device,
+                    status: status !== null ? status : this.devicesStatus[indexOfDevice].status,
+                }
+            }
         },
 
         onDeviceRemoved(device: Device) {

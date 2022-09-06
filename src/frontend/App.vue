@@ -52,8 +52,8 @@
   <!-- Status -->
   <div class="fixed bottom-0 right-0 flex items-center p-2">
 
-    <button @click="startTracking">startTracking</button>
-    <button @click="stopTracking">stopTracking</button>
+    <button @click="startTracking" class="hidden">▶️</button>
+    <button @click="stopTracking" class="hidden">⏸</button>
 
     <StatusLight :status="connected" size="2"/>
     <span v-if="!connected" class="text-xs font-medium ml-2">Verbindung getrennt</span>
