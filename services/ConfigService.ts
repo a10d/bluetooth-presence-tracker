@@ -37,10 +37,13 @@ export class ConfigService {
 
     static loadConfig(filename: string): ConfigService {
         try {
+            console.log('Reading config...')
             const configFile = readFileSync(filename);
 
-            const loadedConfig = JSON.parse(configFile.toString('utf-8'))
+            console.log('Reading config... [DONE]')
 
+            const loadedConfig = JSON.parse(configFile.toString('utf-8'))
+            console.log('Reading config... [DONE][PARSED]')
             return new ConfigService({
                 ...ConfigService.defaultConfig,
                 ...loadedConfig,
