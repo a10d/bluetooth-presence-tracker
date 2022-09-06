@@ -205,6 +205,9 @@ export class TrackerService implements EventEmitter {
             this.tracker.addDevices([device.macAddress])
 
             this.emit(TrackerEvent.DeviceAdded, {device})
+        } else {
+            this.devices[this.devices.findIndex(ds => ds.device.macAddress === device.macAddress)].device.name = device.name
+            this.emit(TrackerEvent.DeviceUpdated, {device})
         }
 
         return this;

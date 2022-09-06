@@ -45,6 +45,7 @@ io.on('connection', (socket) => {
     socket.emit('devices', tracker.devices)
     socket.on('remove-device', (device) => tracker.removeDevice(device))
     socket.on('add-device', (device) => tracker.addDevice(device))
+    socket.on('update-device', (device) => tracker.addDevice(device))
 })
 
 tracker.on(TrackerEvent.StartedTracking, (e) => io.local.emit(TrackerEvent.StartedTracking, e))

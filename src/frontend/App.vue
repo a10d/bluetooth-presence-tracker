@@ -17,7 +17,12 @@
       <div v-for="{device, status} in devicesStatus" @click="editDevice(device)"
            class="border rounded flex items-center p-4 gap-4 group cursor-pointer transform transition-all hover:scale-105 active:scale-95 select-none"
            :class="{'shadow-lg border-gray-300 text-gray-800': status === 1, 'shadow-sm border-gray-200 text-gray-500': status !== 1}">
-        <StatusLight :status="status === 1"/>
+
+        <StatusLight
+            :status="status === 1"
+            :size="status === 1 ? '3' : '5'"
+        />
+
         <div>
           <p class="text-lg">
             <span v-if="device.name" class="font-bold" v-text="device.name"/>

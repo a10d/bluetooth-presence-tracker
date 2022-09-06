@@ -54,7 +54,6 @@ export const useBackend = defineStore('backend', {
                     this.devicesStatus[indexOfDevice].status = status
                 }
             }
-
         },
 
         onDeviceRemoved(device: Device) {
