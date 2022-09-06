@@ -3,26 +3,52 @@ import {readFileSync} from "fs";
 export interface Config {
     backendPort?: number;
     debug?: boolean;
+
+    tackingOptions?: {
+        pingCount?: number,
+        pingTimeout?: number,
+    },
+
+    databaseOptions?: {
+        url?: string;
+        username?: string;
+        password?: string;
+        name?: string;
+        database?: number;
+    }
 }
 
 export class ConfigService {
     static defaultConfig: Config = {
         backendPort: 3000,
         debug: false,
+
+        tackingOptions: {
+            pingCount: 5,
+            pingTimeout: 10,
+        },
     }
 
-    static loadConfig(filename: string): Config {
+    config: Config;
+
+    private constructor(config: Config) {
+        this.config = config
+    }
+
+    static loadConfig(filename: string): ConfigService {
         try {
             const configFile = readFileSync(filename);
 
             const loadedConfig = JSON.parse(configFile.toString('utf-8'))
 
-            return {
+            return new ConfigService({
                 ...ConfigService.defaultConfig,
                 ...loadedConfig,
-            }
+            })
         } catch (e) {
-            return ConfigService.defaultConfig;
+            console.warn('Could not read config file, defaulting to standard config...', e)
+
+            return new ConfigService(ConfigService.defaultConfig);
         }
     }
 }
