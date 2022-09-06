@@ -4,12 +4,12 @@
 
 <script setup lang="ts">
 
-import {io} from 'socket.io-client'
+import {connect as useSocket} from 'socket.io-client'
 import {onMounted} from "vue";
 
-onMounted(() => {
-  const socket = io.connect()
+const socket = useSocket()
 
-  socket.on('started-tracking', (data: any) => console.log('started tracking', data))
-})
+
+socket.on('started-tracking', (data: any) => console.log('started tracking', data))
+
 </script>

@@ -1,4 +1,3 @@
-// @ts-ignore
 import express from 'express';
 import {Server as SocketIoServer} from 'socket.io'
 import {createServer} from "http";
