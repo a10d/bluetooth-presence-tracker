@@ -51,12 +51,18 @@ export class TrackerService implements EventEmitter {
 
         this.tracker.on(
             'present',
-            (macAddress) => this.setDeviceStatus({macAddress}, PresenceStatus.Present)
+            (macAddress) => {
+                console.log('Device Present', macAddress)
+                this.setDeviceStatus({macAddress}, PresenceStatus.Present)
+            }
         )
 
         this.tracker.on(
             'not-present',
-            (macAddress) => this.setDeviceStatus({macAddress}, PresenceStatus.Absent)
+            (macAddress) => {
+                console.log('Device Absent', macAddress)
+                this.setDeviceStatus({macAddress}, PresenceStatus.Absent)
+            }
         )
     }
 
