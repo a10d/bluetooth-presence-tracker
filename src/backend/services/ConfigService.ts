@@ -53,7 +53,7 @@ export class ConfigService {
                 ...loadedConfig,
             })
         } catch (e) {
-            console.warn('Could not read config file, defaulting to standard config...')
+            console.warn('Could not read config file, defaulting to standard config...', e)
             return new ConfigService(ConfigService.defaultConfig);
         }
     }
