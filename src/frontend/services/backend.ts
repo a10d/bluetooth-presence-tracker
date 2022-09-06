@@ -74,5 +74,13 @@ export const useBackend = defineStore('backend', {
         removeDevice(device: Device) {
             this.socket.emit('remove-device', device)
         },
+
+        startTracking() {
+            this.socket.emit('start-tracking')
+        },
+
+        stopTracking() {
+            this.socket.emit('stop-tracking')
+        }
     }
 })

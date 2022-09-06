@@ -51,6 +51,10 @@
 
   <!-- Status -->
   <div class="fixed bottom-0 right-0 flex items-center p-2">
+
+    <button @click="startTracking">startTracking</button>
+    <button @click="stopTracking">stopTracking</button>
+
     <StatusLight :status="connected" size="2"/>
     <span v-if="!connected" class="text-xs font-medium ml-2">Verbindung getrennt</span>
     <span v-if="connected" class="text-xs font-medium ml-2">Verbunden</span>
@@ -79,4 +83,7 @@ onMounted(() => backend.connect())
 const editDevice = (device) => editDeviceModal.value.show(device)
 const addDevice = () => createDeviceModal.value.show()
 
+
+const startTracking = () => backend.startTracking()
+const stopTracking = () => backend.stopTracking()
 </script>

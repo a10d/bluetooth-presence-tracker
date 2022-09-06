@@ -27,11 +27,7 @@ if (configService.config.storeDevices) {
 }
 
 if (configService.config.trackingEnabled) {
-    try {
-        tracker.startTracking()
-    } catch (e) {
-        console.error('Could not start tracking...')
-    }
+    tracker.startTracking()
 }
 
 const httpServer = createServer();
@@ -46,6 +42,9 @@ io.on('connection', (socket) => {
     socket.on('remove-device', (device) => tracker.removeDevice(device))
     socket.on('add-device', (device) => tracker.addDevice(device))
     socket.on('update-device', (device) => tracker.addDevice(device))
+
+    socket.on('start-tracking', () => tracker.startTracking())
+    socket.on('stop-tracking', () => tracker.stopTracking())
 })
 
 tracker.on(TrackerEvent.StartedTracking, (e) => io.local.emit(TrackerEvent.StartedTracking, e))
