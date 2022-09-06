@@ -25,7 +25,6 @@ try {
 
 
 const app: express.Application = express();
-app.use(express.json())
 
 const server = createServer(app)
 
