@@ -182,7 +182,7 @@ export class TrackerService implements EventEmitter {
     private setDeviceStatus(device: Device, status: PresenceStatus) {
 
         if (!this.isTrackingDevice(device)) return;
-        
+
         const trackedDeviceIndex = this.tracked
             .findIndex(ds => ds.device.macAddress.toLowerCase() === device.macAddress.toLowerCase());
 
