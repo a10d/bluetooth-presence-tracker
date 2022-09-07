@@ -173,6 +173,12 @@ export class TrackerService implements EventEmitter {
         this.emit(TrackerEvent.StoppedTracking)
     }
 
+    /**
+     * Sets the presence status of a device
+     * @param device {Device} The device to set the status for
+     * @param status {PresenceStatus} The status to set
+     * @private
+     */
     private setDeviceStatus(device: Device, status: PresenceStatus) {
 
         device.macAddress = device.macAddress.toLowerCase()
@@ -181,22 +187,32 @@ export class TrackerService implements EventEmitter {
             device = this.devices.find(ds => device.macAddress === ds.device.macAddress).device
             this.devices[this.devices.findIndex(ds => ds.device.macAddress === device.macAddress)].status = status;
 
-            if (status === PresenceStatus.Present) {
-                this.emit(TrackerEvent.DeviceConnected, {device, status})
-            }
+            switch (status) {
+                case PresenceStatus.Absent:
+                    this.emit(TrackerEvent.DeviceDisconnected, {device, status})
+                    break;
 
-            if (status === PresenceStatus.Absent) {
-                this.emit(TrackerEvent.DeviceDisconnected, {device, status})
+                case PresenceStatus.Present:
+                    this.emit(TrackerEvent.DeviceConnected, {device, status})
+                    break;
             }
 
             this.emit(TrackerEvent.DeviceUpdated, {device, status})
         }
     }
 
+    /**
+     * Checks if a device is being tracked.
+     * @param device {Device} The device to check
+     */
     isTrackingDevice(device: Device): boolean {
         return !!this.devices.find(ds => device.macAddress === ds.device.macAddress)
     }
 
+    /**
+     * Overwrites the current list of tracked devices with a new list.
+     * @param devices {Device[]} The devices to add
+     */
     setDevices(devices: Device[]) {
         this.devices = devices.map(device => ({
             device: {
@@ -209,6 +225,10 @@ export class TrackerService implements EventEmitter {
         this.tracker.setDevices(devices.map(device => device.macAddress.toLowerCase()))
     }
 
+    /**
+     * Adds a device to the list of tracked devices.
+     * @param device {Device} The device to add
+     */
     addDevice(device: Device) {
 
         device.macAddress = device.macAddress.toLowerCase()
@@ -236,6 +256,10 @@ export class TrackerService implements EventEmitter {
         return this;
     }
 
+    /**
+     * Removes a device from the list of tracked devices.
+     * @param device {Device} The device to remove
+     */
     removeDevice(device: Device) {
         device.macAddress = device.macAddress.toLowerCase()
 
