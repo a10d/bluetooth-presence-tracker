@@ -23,7 +23,7 @@ export enum TrackerEvent {
 
 export class TrackerService implements EventEmitter {
 
-    devices: DeviceStatus[];
+    tracked: DeviceStatus[];
 
     static defaultOptions: TrackerOptions = {
         pingCount: 3,
@@ -40,7 +40,7 @@ export class TrackerService implements EventEmitter {
             ...configService.config.tackingOptions,
         }
 
-        this.devices = [];
+        this.tracked = [];
 
         this.tracker = new BTPresenceTracker();
 
@@ -184,8 +184,9 @@ export class TrackerService implements EventEmitter {
         device.macAddress = device.macAddress.toLowerCase()
 
         if (this.isTrackingDevice(device)) {
-            device = this.devices.find(ds => device.macAddress === ds.device.macAddress).device
-            this.devices[this.devices.findIndex(ds => ds.device.macAddress === device.macAddress)].status = status;
+            const deviceTrackingIndex = this.tracked.findIndex(ds => ds.device.macAddress === device.macAddress)
+            device = this.tracked[deviceTrackingIndex].device
+            this.tracked[deviceTrackingIndex].status = status;
 
             switch (status) {
                 case PresenceStatus.Absent:
@@ -206,7 +207,7 @@ export class TrackerService implements EventEmitter {
      * @param device {Device} The device to check
      */
     isTrackingDevice(device: Device): boolean {
-        return !!this.devices.find(ds => device.macAddress === ds.device.macAddress)
+        return !!this.tracked.find(ds => device.macAddress === ds.device.macAddress)
     }
 
     /**
@@ -214,7 +215,7 @@ export class TrackerService implements EventEmitter {
      * @param devices {Device[]} The devices to add
      */
     setDevices(devices: Device[]) {
-        this.devices = devices.map(device => ({
+        this.tracked = devices.map(device => ({
             device: {
                 macAddress: device.macAddress.toLowerCase(),
                 name: device.name,
@@ -235,7 +236,7 @@ export class TrackerService implements EventEmitter {
 
         if (!this.isTrackingDevice(device)) {
 
-            this.devices.push({
+            this.tracked.push({
                 device,
                 status: PresenceStatus.Absent
             })
@@ -247,7 +248,7 @@ export class TrackerService implements EventEmitter {
                 status: PresenceStatus.Absent
             })
         } else {
-            this.devices[this.devices.findIndex(ds => ds.device.macAddress === device.macAddress)].device.name = device.name
+            this.tracked[this.tracked.findIndex(ds => ds.device.macAddress === device.macAddress)].device.name = device.name
             this.emit(TrackerEvent.DeviceUpdated, {
                 device
             })
@@ -267,8 +268,8 @@ export class TrackerService implements EventEmitter {
             return;
         }
 
-        this.devices.splice(
-            this.devices.findIndex(ds => ds.device.macAddress === device.macAddress),
+        this.tracked.splice(
+            this.tracked.findIndex(ds => ds.device.macAddress === device.macAddress),
             1
         )
 

@@ -18,7 +18,7 @@ if (configService.config.storeDevices) {
 
     const SaveDevicesToDatabase = () => {
         if (configService.config.debug) console.log('Saving devices to database...')
-        database.saveDevices(tracker.devices.map(ds => ds.device))
+        database.saveDevices(tracker.tracked.map(ds => ds.device))
     }
 
     tracker.on(TrackerEvent.DeviceAdded, SaveDevicesToDatabase)
@@ -34,7 +34,7 @@ const httpServer = createServer();
 const io = new Server(httpServer);
 
 io.on('connection', (socket) => {
-    socket.emit('devices', tracker.devices)
+    socket.emit('devices', tracker.tracked)
     socket.on('remove-device', (device) => tracker.removeDevice(device))
     socket.on('add-device', (device) => tracker.addDevice(device))
     socket.on('update-device', (device) => tracker.addDevice(device))
