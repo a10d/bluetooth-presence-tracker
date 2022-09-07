@@ -181,25 +181,25 @@ export class TrackerService implements EventEmitter {
      */
     private setDeviceStatus(device: Device, status: PresenceStatus) {
 
-        device.macAddress = device.macAddress.toLowerCase()
+        if (!this.isTrackingDevice(device)) return;
+        
+        const trackedDeviceIndex = this.tracked
+            .findIndex(ds => ds.device.macAddress.toLowerCase() === device.macAddress.toLowerCase());
 
-        if (this.isTrackingDevice(device)) {
-            const deviceTrackingIndex = this.tracked.findIndex(ds => ds.device.macAddress === device.macAddress)
-            device = this.tracked[deviceTrackingIndex].device
-            this.tracked[deviceTrackingIndex].status = status;
+        device = this.tracked[trackedDeviceIndex].device;
+        this.tracked[trackedDeviceIndex].status = status;
 
-            switch (status) {
-                case PresenceStatus.Absent:
-                    this.emit(TrackerEvent.DeviceDisconnected, {device, status})
-                    break;
+        switch (status) {
+            case PresenceStatus.Absent:
+                this.emit(TrackerEvent.DeviceDisconnected, {device, status});
+                break;
 
-                case PresenceStatus.Present:
-                    this.emit(TrackerEvent.DeviceConnected, {device, status})
-                    break;
-            }
-
-            this.emit(TrackerEvent.DeviceUpdated, {device, status})
+            case PresenceStatus.Present:
+                this.emit(TrackerEvent.DeviceConnected, {device, status});
+                break;
         }
+
+        this.emit(TrackerEvent.DeviceUpdated, {device, status});
     }
 
     /**
@@ -207,7 +207,7 @@ export class TrackerService implements EventEmitter {
      * @param device {Device} The device to check
      */
     isTrackingDevice(device: Device): boolean {
-        return !!this.tracked.find(ds => device.macAddress === ds.device.macAddress)
+        return !!this.tracked.find(ds => device.macAddress.toLowerCase() === ds.device.macAddress.toLowerCase())
     }
 
     /**
