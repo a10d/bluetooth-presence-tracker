@@ -52,38 +52,43 @@
   <!-- Status -->
   <div class="fixed bottom-0 right-0 flex items-center p-2">
 
-    <button @click="startTracking" class="hidden">▶️</button>
-    <button @click="stopTracking" class="hidden">⏸</button>
+    <button @click="startTracking" v-if="controlsVisible">▶️</button>
+    <button @click="stopTracking" v-if="controlsVisible">⏸</button>
 
-    <StatusLight :status="connected" size="2"/>
+    <span @click="controlsVisible = !controlsVisible">
+      <StatusLight :status="connected" size="2"/>
     <span v-if="!connected" class="text-xs font-medium ml-2">Verbindung getrennt</span>
     <span v-if="connected" class="text-xs font-medium ml-2">Verbunden</span>
+    </span>
+
   </div>
 </template>
 
 <script setup lang="ts">
 
-import {computed, onMounted, ref} from "vue";
+import { computed, onMounted, ref } from "vue";
 import StatusLight from "./components/StatusLight.vue";
-import {useBackend} from "./services/backend";
+import { useBackend } from "./services/backend";
 import CreateDeviceModal from "./components/CreateDeviceModal.vue";
 import EditDeviceModal from "./components/EditDeviceModal.vue";
 import Spinner from "./components/Spinner.vue";
 
-const createDeviceModal = ref(null)
-const editDeviceModal = ref(null)
+const createDeviceModal = ref(null);
+const editDeviceModal = ref(null);
 
-const backend = useBackend()
+const controlsVisible = ref(false)
 
-const connected = computed(() => backend.connected)
-const devicesStatus = computed(() => backend.devicesStatus)
+const backend = useBackend();
 
-onMounted(() => backend.connect())
+const connected = computed(() => backend.connected);
+const devicesStatus = computed(() => backend.devicesStatus);
 
-const editDevice = (device) => editDeviceModal.value.show(device)
-const addDevice = () => createDeviceModal.value.show()
+onMounted(() => backend.connect());
+
+const editDevice = (device) => editDeviceModal.value.show(device);
+const addDevice = () => createDeviceModal.value.show();
 
 
-const startTracking = () => backend.startTracking()
-const stopTracking = () => backend.stopTracking()
+const startTracking = () => backend.startTracking();
+const stopTracking = () => backend.stopTracking();
 </script>

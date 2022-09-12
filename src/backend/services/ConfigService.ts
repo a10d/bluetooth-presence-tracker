@@ -1,4 +1,4 @@
-import {readFileSync} from "fs";
+import { readFileSync } from "fs";
 
 export interface Config {
     backendPort?: number;
@@ -10,6 +10,7 @@ export interface Config {
     tackingOptions?: {
         pingCount?: number,
         pingTimeout?: number,
+        scanInterval?: number,
     },
 
     storeDevices?: boolean;
@@ -34,26 +35,27 @@ export class ConfigService {
         tackingOptions: {
             pingCount: 5,
             pingTimeout: 10,
+            scanInterval: 5,
         },
-    }
+    };
 
     config: Config;
 
     private constructor(config: Config) {
-        this.config = config
+        this.config = config;
     }
 
     static loadConfig(filename: string): ConfigService {
         try {
             const configFile = readFileSync(filename);
 
-            const loadedConfig = JSON.parse(configFile.toString('utf-8'))
+            const loadedConfig = JSON.parse(configFile.toString("utf-8"));
             return new ConfigService({
                 ...ConfigService.defaultConfig,
                 ...loadedConfig,
-            })
+            });
         } catch (e) {
-            console.warn('Could not read config file, defaulting to standard config...', e)
+            console.warn("Could not read config file, defaulting to standard config...", e);
             return new ConfigService(ConfigService.defaultConfig);
         }
     }

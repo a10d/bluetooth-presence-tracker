@@ -1,24 +1,25 @@
-import {btPresence as BTPresenceTracker} from "bt-presence";
-import {ConfigService} from "./ConfigService.js";
-import {Device} from "../../common/contracts/Device.js";
-import {DeviceStatus} from "../../common/contracts/DeviceStatus.js";
-import {PresenceStatus} from "../../common/contracts/PresenceStatus.js";
-import {EventEmitter} from "events"
-import {EventSubscriber} from "../../common/contracts/EventSubscriber.js";
+import { btPresence as BTPresenceTracker } from "bt-presence";
+import { ConfigService } from "./ConfigService.js";
+import { Device } from "../../common/contracts/Device.js";
+import { DeviceStatus } from "../../common/contracts/DeviceStatus.js";
+import { PresenceStatus } from "../../common/contracts/PresenceStatus.js";
+import { EventEmitter } from "events";
+import { EventSubscriber } from "../../common/contracts/EventSubscriber.js";
 
 interface TrackerOptions {
     pingCount: number;
     pingTimeout: number;
+    scanInterval: number;
 }
 
 export enum TrackerEvent {
-    DeviceConnected = 'device-connected',
-    DeviceDisconnected = 'device-disconnected',
-    DeviceUpdated = 'device-updated',
-    DeviceAdded = 'device-added',
-    DeviceRemoved = 'device-removed',
-    StartedTracking = 'started-tracking',
-    StoppedTracking = 'stopped-tracking',
+    DeviceConnected = "device-connected",
+    DeviceDisconnected = "device-disconnected",
+    DeviceUpdated = "device-updated",
+    DeviceAdded = "device-added",
+    DeviceRemoved = "device-removed",
+    StartedTracking = "started-tracking",
+    StoppedTracking = "stopped-tracking",
 }
 
 export class TrackerService implements EventEmitter {
@@ -28,7 +29,8 @@ export class TrackerService implements EventEmitter {
     static defaultOptions: TrackerOptions = {
         pingCount: 3,
         pingTimeout: 5,
-    }
+        scanInterval: 5,
+    };
 
     private options: TrackerOptions;
 
@@ -38,30 +40,32 @@ export class TrackerService implements EventEmitter {
         this.options = {
             ...TrackerService.defaultOptions,
             ...configService.config.tackingOptions,
-        }
+        };
 
         this.tracked = [];
 
         this.tracker = new BTPresenceTracker();
 
+        this.tracker.setIntervalSeconds(this.options.scanInterval);
+
         this.tracker.setPingOptions({
             count: this.options.pingCount,
             timeoutSecs: this.options.pingTimeout,
-        })
+        });
 
         this.tracker.on(
-            'present',
+            "present",
             (macAddress) => {
-                this.setDeviceStatus({macAddress}, PresenceStatus.Present)
-            }
-        )
+                this.setDeviceStatus({ macAddress }, PresenceStatus.Present);
+            },
+        );
 
         this.tracker.on(
-            'not-present',
+            "not-present",
             (macAddress) => {
-                this.setDeviceStatus({macAddress}, PresenceStatus.Absent)
-            }
-        )
+                this.setDeviceStatus({ macAddress }, PresenceStatus.Absent);
+            },
+        );
     }
 
     private eventSubscribers: EventSubscriber[] = [];
@@ -71,12 +75,12 @@ export class TrackerService implements EventEmitter {
     }
 
     on(eventName: string | symbol, listener: (...args: any[]) => void): this {
-        this.eventSubscribers.push({eventName, listener})
+        this.eventSubscribers.push({ eventName, listener });
         return this;
     }
 
     once(eventName: string | symbol, listener: (...args: any[]) => void): this {
-        this.eventSubscribers.push({eventName, listener, once: true})
+        this.eventSubscribers.push({ eventName, listener, once: true });
         return this;
     }
 
@@ -85,18 +89,18 @@ export class TrackerService implements EventEmitter {
     }
 
     off(eventName: string | symbol, listener: (...args: any[]) => void): this {
-        if (this.eventSubscribers.indexOf({eventName, listener}) !== -1) {
-            this.eventSubscribers.splice(this.eventSubscribers.indexOf({eventName, listener}), 1)
+        if ( this.eventSubscribers.indexOf({ eventName, listener }) !== -1 ) {
+            this.eventSubscribers.splice(this.eventSubscribers.indexOf({ eventName, listener }), 1);
         }
 
         return this;
     }
 
     removeAllListeners(event?: string | symbol): this {
-        if (event) {
-            this.eventSubscribers = this.eventSubscribers.filter(({eventName}) => eventName !== event)
+        if ( event ) {
+            this.eventSubscribers = this.eventSubscribers.filter(({ eventName }) => eventName !== event);
         } else {
-            this.eventSubscribers = []
+            this.eventSubscribers = [];
         }
         return this;
     }
@@ -118,15 +122,15 @@ export class TrackerService implements EventEmitter {
     }
 
     emit(eventName: string | symbol, ...args: any[]): boolean {
-        if (this.listenerCount(eventName) === 0) {
+        if ( this.listenerCount(eventName) === 0 ) {
             return false;
         }
 
         for (const eventSubscriber of this.eventSubscribers.filter(l => l.eventName === eventName)) {
-            eventSubscriber.listener(...args)
+            eventSubscriber.listener(...args);
 
-            if (eventSubscriber.hasOwnProperty('once') && eventSubscriber.once) {
-                this.off(eventName, eventSubscriber.listener)
+            if ( eventSubscriber.hasOwnProperty("once") && eventSubscriber.once ) {
+                this.off(eventName, eventSubscriber.listener);
             }
         }
 
@@ -134,16 +138,16 @@ export class TrackerService implements EventEmitter {
     }
 
     listenerCount(eventName: string | symbol): number {
-        return this.eventSubscribers.filter(l => l.eventName === eventName).length
+        return this.eventSubscribers.filter(l => l.eventName === eventName).length;
     }
 
     prependListener(eventName: string | symbol, listener: (...args: any[]) => void): this {
-        this.eventSubscribers.unshift({eventName, listener})
+        this.eventSubscribers.unshift({ eventName, listener });
         return this;
     }
 
     prependOnceListener(eventName: string | symbol, listener: (...args: any[]) => void): this {
-        this.eventSubscribers.unshift({eventName, listener, once: true})
+        this.eventSubscribers.unshift({ eventName, listener, once: true });
         return this;
     }
 
@@ -156,21 +160,21 @@ export class TrackerService implements EventEmitter {
             TrackerEvent.DeviceRemoved,
             TrackerEvent.StartedTracking,
             TrackerEvent.StoppedTracking,
-        ]
+        ];
     }
 
     startTracking() {
         try {
-            this.tracker.start(true)
-            this.emit(TrackerEvent.StartedTracking)
+            this.tracker.start(true);
+            this.emit(TrackerEvent.StartedTracking);
         } catch (e) {
-            console.error('Could not start tracking', e)
+            console.error("Could not start tracking", e);
         }
     }
 
     stopTracking() {
-        this.tracker.stop()
-        this.emit(TrackerEvent.StoppedTracking)
+        this.tracker.stop();
+        this.emit(TrackerEvent.StoppedTracking);
     }
 
     /**
@@ -181,7 +185,7 @@ export class TrackerService implements EventEmitter {
      */
     private setDeviceStatus(device: Device, status: PresenceStatus) {
 
-        if (!this.isTrackingDevice(device)) return;
+        if ( ! this.isTrackingDevice(device) ) return;
 
         const trackedDeviceIndex = this.tracked
             .findIndex(ds => ds.device.macAddress.toLowerCase() === device.macAddress.toLowerCase());
@@ -191,15 +195,15 @@ export class TrackerService implements EventEmitter {
 
         switch (status) {
             case PresenceStatus.Absent:
-                this.emit(TrackerEvent.DeviceDisconnected, {device, status});
+                this.emit(TrackerEvent.DeviceDisconnected, { device, status });
                 break;
 
             case PresenceStatus.Present:
-                this.emit(TrackerEvent.DeviceConnected, {device, status});
+                this.emit(TrackerEvent.DeviceConnected, { device, status });
                 break;
         }
 
-        this.emit(TrackerEvent.DeviceUpdated, {device, status});
+        this.emit(TrackerEvent.DeviceUpdated, { device, status });
     }
 
     /**
@@ -207,7 +211,7 @@ export class TrackerService implements EventEmitter {
      * @param device {Device} The device to check
      */
     isTrackingDevice(device: Device): boolean {
-        return !!this.tracked.find(ds => device.macAddress.toLowerCase() === ds.device.macAddress.toLowerCase())
+        return !! this.tracked.find(ds => device.macAddress.toLowerCase() === ds.device.macAddress.toLowerCase());
     }
 
     /**
@@ -220,10 +224,10 @@ export class TrackerService implements EventEmitter {
                 macAddress: device.macAddress.toLowerCase(),
                 name: device.name,
             },
-            status: PresenceStatus.Absent
-        }))
+            status: PresenceStatus.Absent,
+        }));
 
-        this.tracker.setDevices(devices.map(device => device.macAddress.toLowerCase()))
+        this.tracker.setDevices(devices.map(device => device.macAddress.toLowerCase()));
     }
 
     /**
@@ -232,26 +236,26 @@ export class TrackerService implements EventEmitter {
      */
     addDevice(device: Device) {
 
-        device.macAddress = device.macAddress.toLowerCase()
+        device.macAddress = device.macAddress.toLowerCase();
 
-        if (!this.isTrackingDevice(device)) {
+        if ( ! this.isTrackingDevice(device) ) {
 
             this.tracked.push({
                 device,
-                status: PresenceStatus.Absent
-            })
+                status: PresenceStatus.Absent,
+            });
 
-            this.tracker.addDevices([device.macAddress])
+            this.tracker.addDevices([device.macAddress]);
 
             this.emit(TrackerEvent.DeviceAdded, {
                 device,
-                status: PresenceStatus.Absent
-            })
+                status: PresenceStatus.Absent,
+            });
         } else {
-            this.tracked[this.tracked.findIndex(ds => ds.device.macAddress === device.macAddress)].device.name = device.name
+            this.tracked[this.tracked.findIndex(ds => ds.device.macAddress === device.macAddress)].device.name = device.name;
             this.emit(TrackerEvent.DeviceUpdated, {
-                device
-            })
+                device,
+            });
         }
 
         return this;
@@ -262,19 +266,19 @@ export class TrackerService implements EventEmitter {
      * @param device {Device} The device to remove
      */
     removeDevice(device: Device) {
-        device.macAddress = device.macAddress.toLowerCase()
+        device.macAddress = device.macAddress.toLowerCase();
 
-        if (!this.isTrackingDevice(device)) {
+        if ( ! this.isTrackingDevice(device) ) {
             return;
         }
 
         this.tracked.splice(
             this.tracked.findIndex(ds => ds.device.macAddress === device.macAddress),
-            1
-        )
+            1,
+        );
 
-        this.tracker.removeDevices([device.macAddress])
+        this.tracker.removeDevices([device.macAddress]);
 
-        this.emit(TrackerEvent.DeviceRemoved, {device})
+        this.emit(TrackerEvent.DeviceRemoved, { device });
     }
 }
