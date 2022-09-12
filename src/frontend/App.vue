@@ -55,11 +55,11 @@
     <button @click="startTracking" v-if="controlsVisible">▶️</button>
     <button @click="stopTracking" v-if="controlsVisible">⏸</button>
 
-    <span @click="controlsVisible = !controlsVisible">
-      <StatusLight :status="connected" size="2"/>
+    <StatusLight :status="connected" size="2"/>
+
     <span v-if="!connected" class="text-xs font-medium ml-2">Verbindung getrennt</span>
-    <span v-if="connected" class="text-xs font-medium ml-2">Verbunden</span>
-    </span>
+
+    <span v-if="connected" @click="controlsVisible = !controlsVisible" class="text-xs font-medium ml-2">Verbunden</span>
 
   </div>
 </template>
@@ -76,7 +76,7 @@ import Spinner from "./components/Spinner.vue";
 const createDeviceModal = ref(null);
 const editDeviceModal = ref(null);
 
-const controlsVisible = ref(false)
+const controlsVisible = ref(false);
 
 const backend = useBackend();
 
